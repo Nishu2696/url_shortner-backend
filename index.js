@@ -47,7 +47,7 @@ app.listen(port, () => {
 
 //displaying all the urls
 
-app.get('/urlshortnerapi', function (req, res) {
+app.get('/urlshortnerapi', async function (req, res) {
     console.log("hi shortened url");
     // UrlModel.find(function (err, result) {
     //     console.log("result", result);
@@ -62,7 +62,12 @@ app.get('/urlshortnerapi', function (req, res) {
     //     // });
     // })
 
-    mongoClient.connect(dbURL, (err, client) => {
+    const client = new mongoClient(dbURL, { useNewUrlParser: true });
+
+    try {
+        // Use connect method to connect to the Server
+        await client.connect();
+
         if (err) throw err;
         let db = client.db("myRegistration");
         db.collection("url").find(function (err, result) {
@@ -70,12 +75,26 @@ app.get('/urlshortnerapi', function (req, res) {
             if (err) throw err;
             res.send(result);
         });
-    });
+        //const db = client.db(dbName);
+    } catch (err) {
+        console.log(err.stack);
+    }
+
+    client.close();
+    // mongoClient.connect(dbURL, (err, client) => {
+    //     if (err) throw err;
+    //     let db = client.db("myRegistration");
+    //     db.collection("url").find(function (err, result) {
+    //         console.log("result", result);
+    //         if (err) throw err;
+    //         res.send(result);
+    //     });
+    // });
 });
 
 //creating shorturl...
 
-app.post('/createurlshortner', function (req, res) {
+app.post('/createurlshortner',async function (req, res) {
     // 1st try for shortening
 
 
@@ -131,8 +150,14 @@ app.post('/createurlshortner', function (req, res) {
     //3rd try for shortening
 
 
-    console.log("getting longurl")
-    mongoClient.connect(dbURL, (err, client) => {
+    console.log("getting longurl");
+
+    const client = new mongoClient(dbURL, { useNewUrlParser: true });
+
+    try {
+        // Use connect method to connect to the Server
+        await client.connect();
+
         if (err) throw err;
         let urls = {
             longUrl: req.body.longUrl,
@@ -153,7 +178,34 @@ app.post('/createurlshortner', function (req, res) {
             //     msg: "Short URL successfully created"
             // });
         });
-    });
+        //const db = client.db(dbName);
+    } catch (err) {
+        console.log(err.stack);
+    }
+
+    client.close();
+    // mongoClient.connect(dbURL, (err, client) => {
+    //     if (err) throw err;
+    //     let urls = {
+    //         longUrl: req.body.longUrl,
+    //         shortUrl: generateUrl(),
+    //         count: 0
+    //     };
+    //     console.log("urls", urls);
+    //     let db = client.db("myRegistration");
+    //     db.collection("url").insertOne(urls, (err, data) => {
+    //         console.log("hi longurl and shorturl has been inserted");
+    //         if (err) throw err;
+    //         console.log(data);
+    //         client.close();
+    //         res.send({
+    //             data: "short URL has been updated"
+    //         })
+    //         // res.status(200).json({
+    //         //     msg: "Short URL successfully created"
+    //         // });
+    //     });
+    // });
 });
 
 //function to generate random letters and numbers and storing it in shorturl...
@@ -174,7 +226,7 @@ function generateUrl() {
 
 //redirecting to the original login page with the help of short url link and updating the click count...
 
-app.get('/:urlId', function (req, res) {
+app.get('/:urlId',async function (req, res) {
     // UrlModel.findOne({ shortUrl: req.params.urlId }, function (err, data) {
     //     if (err) throw err;
 
@@ -188,8 +240,13 @@ app.get('/:urlId', function (req, res) {
     // })
 
     console.log("shorturl", req.params.urlId);
-    mongoClient.connect(dbURL, (err, client) => {
-        if (err) throw err;
+
+    const client = new mongoClient(dbURL, { useNewUrlParser: true });
+
+    try {
+        // Use connect method to connect to the Server
+        await client.connect();
+    
         let db = client.db("myRegistration");
         db.collection("url").findOne({ email: req.body.email }, (err, data) => {
             if (err) throw err;
@@ -203,7 +260,28 @@ app.get('/:urlId', function (req, res) {
                 });
             }
         });
-    });
+        //const db = client.db(dbName);
+      } catch (err) {
+        console.log(err.stack);
+      }
+    
+      client.close();
+    // mongoClient.connect(dbURL, (err, client) => {
+    //     if (err) throw err;
+    //     let db = client.db("myRegistration");
+    //     db.collection("url").findOne({ email: req.body.email }, (err, data) => {
+    //         if (err) throw err;
+    //         if (data) {
+    //             db.collection("url").updateOne({ shortUrl: req.params.urlId }, { $inc: { count: 1 } }, (err, updateddata) => {
+    //                 if (err) throw err;
+    //                 client.close();
+    //                 console.log(updatedData);
+    //                 res.send(updateddata);
+    //                 //res.status(200).json(data);
+    //             });
+    //         }
+    //     });
+    // });
 })
 
 //creating an API for registration
@@ -524,7 +602,7 @@ app.post("/changepassword", async (req, res) => {
 
 });
 
-app.post("/interchangepassword",async (req, res) => {
+app.post("/interchangepassword", async (req, res) => {
 
     const client = new mongoClient(dbURL, { useNewUrlParser: true });
 
