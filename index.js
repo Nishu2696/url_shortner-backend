@@ -16,9 +16,9 @@ app.use(function (req, res, next) {
 
 const mongodb = require('mongodb');
 const mongoClient = mongodb.MongoClient;
-const dbURL = `mongodb+srv://Nishu2696Url:Goku1996!@cluster0.fsljb.mongodb.net/myRegistration?retryWrites=true&w=majority`;
-//const dbURL = `mongodb+srv://${process.env.D_USER}:${process.env.D_PASSWORD}@cluster0.fsljb.mongodb.net/myRegistration?retryWrites=true&w=majority`;
-//const dbURL = process.env.DBURL;
+//const dbURL = `mongodb+srv://Nishu2696Url:Goku1996!@cluster0.fsljb.mongodb.net/myRegistration?retryWrites=true&w=majority`;
+const dbURL = `mongodb+srv://${process.env.D_USER}:${process.env.D_PASSWORD}@cluster0.fsljb.mongodb.net/myRegistration?retryWrites=true&w=majority`;
+//const dbURL = encode.uri(process.env.DBURL);
 console.log("dbURL", dbURL);
 
 const bcrypt = require("bcryptjs");
@@ -31,12 +31,12 @@ const jwt = require("jsonwebtoken");
 
 const cryptoRandomString = require("crypto-random-string");
 
-const mongoose = require('mongoose');
+//const mongoose = require('mongoose');
 
 // mongoose.connect(`mongodb+srv://${process.env.D_USER}:${process.env.D_PASSWORD}@cluster0.fsljb.mongodb.net/myRegistration?retryWrites=true&w=majority`);
-mongoose.connect(`mongodb+srv://Nishu2696Url:Goku1996!@cluster0.fsljb.mongodb.net/myRegistration?retryWrites=true&w=majority`);
+// mongoose.connect(`mongodb+srv://Nishu2696Url:Goku1996!@cluster0.fsljb.mongodb.net/myRegistration?retryWrites=true&w=majority`);
 
-const { UrlModel } = require('./models/urlshort');
+// const { UrlModel } = require('./models/urlshort');
 
 app.listen(port, () => {
     console.log("hello");
@@ -48,23 +48,36 @@ app.listen(port, () => {
 
 app.get('/urlshortnerapi', function (req, res) {
     console.log("hi shortened url");
-    UrlModel.find(function (err, result) {
-        console.log("result", result);
+    // UrlModel.find(function (err, result) {
+    //     console.log("result", result);
+    //     if (err) throw err;
+    //     res.send(result);
+    //     // res.render('http://localhost:4200/urlshortner', {
+    //     //     urlResult: result
+    //     // })
+    //     // res.json({
+    //     //     longUrl: result.longUrl,
+    //     //     shortUrl: result.shortUrl
+    //     // });
+    // })
+
+    mongoClient.connect(dbURL, (err, client) => {
         if (err) throw err;
-        res.send(result);
-        // res.render('http://localhost:4200/urlshortner', {
-        //     urlResult: result
-        // })
-        // res.json({
-        //     longUrl: result.longUrl,
-        //     shortUrl: result.shortUrl
-        // });
-    })
+        let db = client.db("myRegistration");
+        db.collection("url").find(function (err, result) {
+                console.log("result", result);
+                if (err) throw err;
+                res.send(result);
+        });
+    });
 });
 
 //creating shorturl...
 
 app.post('/createurlshortner', function (req, res) {
+    // 1st try for shortening
+
+
     // let url = req.body.url;
     // let ran = Math.random().toString(32).substring(7);
     // let short_url = `${process.env.shorturl}/${ran}`;
@@ -91,57 +104,112 @@ app.post('/createurlshortner', function (req, res) {
     //     short_url
     // })
 
-    let urlShort = new UrlModel({
-        longUrl: req.body.longUrl,
-        shortUrl: generateUrl()
-    })
+    //2nd try for shortening
 
-    urlShort.save(function (err, data) {
+
+    // let urlShort = new UrlModel({
+    //     longUrl: req.body.longUrl,
+    //     shortUrl: generateUrl()
+    // })
+
+    // urlShort.save(function (err, data) {
+    //     if (err) throw err;
+    //     //res.redirect('/urlshortner');
+    //     if (data) {
+    //         console.log(data);
+    //         res.send({
+    //             data: "short URL has been updated"
+    //         })
+    //         // res.status(200).json({
+    //         //     msg: "Short URL successfully created"
+    //         // });
+    //         //res.redirect("http://localhost:4200/urlshortner");
+    //     }
+    // })
+
+    //3rd try for shortening
+
+
+    mongoClient.connect(dbURL, (err, client) => {
         if (err) throw err;
-        //res.redirect('/urlshortner');
-        if (data) {
-            console.log(data);
-            res.send({
-                data: "short URL has been updated"
-            })
-            // res.status(200).json({
-            //     msg: "Short URL successfully created"
-            // });
-            //res.redirect("http://localhost:4200/urlshortner");
+        let urls = {
+            longUrl: req.body.longUrl,
+            shortUrl: function () {
+                var rndResult = "";
+                var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                var charactersLength = characters.length;
+
+                for (var i = 0; i < 5; i++) {
+                    rndResult += characters.charAt(
+                        Math.floor(Math.random() * charactersLength)
+                    );
+                }
+                console.log(rndResult);
+                return rndResult;
+            },
+            count: 0
         }
-    })
+        let db = client.db("myRegistration");
+        db.collection("url").insertOne(urls, (err, data) => {
+            console.log("hi longurl and shorturl has been inserted");
+            if (err) throw err;
+            console.log(data);
+            client.close();
+            res.status(200).json({
+                msg: "Short URL successfully created"
+            });
+        });
+    });
 });
 
 //function to generate random letters and numbers and storing it in shorturl...
 
-function generateUrl() {
-    var rndResult = "";
-    var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    var charactersLength = characters.length;
+// function generateUrl() {
+//     var rndResult = "";
+//     var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+//     var charactersLength = characters.length;
 
-    for (var i = 0; i < 5; i++) {
-        rndResult += characters.charAt(
-            Math.floor(Math.random() * charactersLength)
-        );
-    }
-    console.log(rndResult)
-    return rndResult
-}
+//     for (var i = 0; i < 5; i++) {
+//         rndResult += characters.charAt(
+//             Math.floor(Math.random() * charactersLength)
+//         );
+//     }
+//     console.log(rndResult)
+//     return rndResult
+// }
 
 //redirecting to the original login page with the help of short url link and updating the click count...
 
 app.get('/:urlId', function (req, res) {
-    UrlModel.findOne({ shortUrl: req.params.urlId }, function (err, data) {
+    // UrlModel.findOne({ shortUrl: req.params.urlId }, function (err, data) {
+    //     if (err) throw err;
+
+    //     UrlModel.updateOne({ shortUrl: req.params.urlId }, { $inc: { clickCount: 1 } }, function (err, updatedData) {
+    //         if (err) throw err;
+    //         console.log(updatedData);
+    //         res.send(updatedData);
+    //     })
+
+
+    // })
+
+    console.log("shorturl", req.params.urlId);
+    mongoClient.connect(dbURL, (err, client) => {
         if (err) throw err;
-
-        UrlModel.updateOne({ shortUrl: req.params.urlId }, { $inc: { clickCount: 1 } }, function (err, updatedData) {
+        let db = client.db("myRegistration");
+        db.collection("url").findOne({ email: req.body.email }, (err, data) => {
             if (err) throw err;
-            console.log(updatedData);
-            res.send(updatedData);
-        })
-
-
-    })
+            if (data) {
+                db.collection("url").updateOne({ shortUrl: req.params.urlId }, { $inc: { count: 1 } }, (err, updateddata) => {
+                    if (err) throw err;
+                    client.close();
+                    console.log(updatedData);
+                    res.send(updateddata);
+                    //res.status(200).json(data);
+                });
+            }
+        });
+    });
 })
 
 //creating an API for registration
@@ -362,7 +430,7 @@ app.post("/changepassword", (req, res) => {
                     text: "Hello world?", // plain text body
                     html: `<p>Please follow this link :</p></br>
                             <p>${link + sent_to}</p>
-                           <a href=${link+sent_to}>Click HERE</a>`, // html body
+                           <a href=${link + sent_to}>Click HERE</a>`, // html body
                     //html: `<b>"${random}"</b>`, // html body
                 });
 
