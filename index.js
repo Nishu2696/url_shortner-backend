@@ -170,7 +170,7 @@ app.post("/register", (req, res) => {
                 }
                 let key = cryptoRandomString({ length: 10, type: "url-safe" });
                 let sessionLink = `${req.body.email}/ ${key}`;
-                let link = "https://sad-engelbart-700638.netlify.app/verificationemail/1";
+                let link = "https://sad-engelbart-700638.netlify.app/#/verificationemail/";
 
                 let sent_to = req.body.email;
                 console.log("name_1", sent_to);
@@ -197,7 +197,7 @@ app.post("/register", (req, res) => {
                     subject: "verification Link", // Subject line
                     text: "Hello world?", // plain text body
                     html: `<p>Please follow this link :</p></br>
-                            <p>${link}</p>
+                            <p>${link}${1}</p>
                            <a href=${link + sent_to}>Click HERE</a>`, // html body
                 });
 
