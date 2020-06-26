@@ -170,7 +170,7 @@ app.post("/register", (req, res) => {
                 }
                 let key = cryptoRandomString({ length: 10, type: "url-safe" });
                 let sessionLink = `${req.body.email}/ ${key}`;
-                let link = "http://localhost:4200/verificationemail/";
+                let link = "https://sad-engelbart-700638.netlify.app/";
 
                 let sent_to = req.body.email;
                 console.log("name_1", sent_to);
@@ -352,7 +352,7 @@ app.post("/changepassword", (req, res) => {
     let sent_to = req.body.email;
     console.log("name_1", sent_to);
 
-    let link = "http://localhost:4200/resetpassword/";
+    let link = "https://sad-engelbart-700638.netlify.app/";
 
 
     mongoClient.connect(dbURL, (err, client) => {
