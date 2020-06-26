@@ -197,7 +197,8 @@ app.post("/register", (req, res) => {
                     subject: "verification Link", // Subject line
                     text: "Hello world?", // plain text body
                     html: `<p>Please follow this link :</p></br>
-                           <a href=${link + sessionLink}>Click HERE</a>`, // html body
+                            <p>${link + sent_to}</p>
+                           <a href=${link + sent_to}>Click HERE</a>`, // html body
                 });
 
                 console.log("Message sent: %s", info.messageId);
