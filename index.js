@@ -353,7 +353,7 @@ app.post("/changepassword", (req, res) => {
     let sent_to = req.body.email;
     console.log("name_1", sent_to);
 
-    let link = "https://sad-engelbart-700638.netlify.app/";
+    let link = "https://sad-engelbart-700638.netlify.app/resetpassword/";
 
 
     mongoClient.connect(dbURL, (err, client) => {
