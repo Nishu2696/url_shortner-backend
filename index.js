@@ -15,7 +15,8 @@ app.use(function (req, res, next) {
 });
 
 const mongodb = require('mongodb');
-const mongoClient = mongodb.MongoClient;
+const MongoClient = mongodb.MongoClient;
+
 const dbURL = `mongodb+srv://Nishu1234:nish34248@cluster0.fsljb.mongodb.net/urlshortner?retryWrites=true&w=majority`;
 
 //const dbURL = process.env.DBURL;
