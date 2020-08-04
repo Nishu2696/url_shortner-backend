@@ -139,12 +139,13 @@ app.get('/:urlId', function (req, res) {
 
 
     })
-})
+});
 
 //creating an API for registration
 app.post('/register', async (req, res) => {
-    let { email, firstName, lastName, password, userType, accessRights } = req.body;
-    if (email === undefined || firstName === undefined || lastName === undefined || password === undefined || userType === undefined || accessRights === undefined) {
+    let email = req.body.email;
+    let password = req.body.password;
+    if (email === undefined || password === undefined) {
         res.status(400).json({
             message: 'Fields missing'
         });
@@ -162,7 +163,7 @@ app.post('/register', async (req, res) => {
             let hash = await bcrypt.hash(password, salt).catch((err) => { throw err; });
             password = hash;
             let accountVerified = false;
-            await db.collection('users').insertOne({ email, firstName, lastName, password, userType, accountVerified, accessRights }).catch(err => { throw err; });
+            await db.collection('users').insertOne({ email, firstName, lastName, password, accountVerified }).catch(err => { throw err; });
             let buf = await require('crypto').randomBytes(32);
             let token = buf.toString('hex');
             await db.collection('users').updateOne({ email }, { $set: { verificationToken: token } });
@@ -190,7 +191,8 @@ app.post('/register', async (req, res) => {
 
         }
     }
-})
+});
+
 app.post('/accountverification', async (req, res) => {
     let { verificationToken, email } = req.body;
     let client = await mongodb.connect(dbURL).catch(err => { throw err });
@@ -208,6 +210,7 @@ app.post('/accountverification', async (req, res) => {
         });
     }
 });
+
 app.post('/forgotpassword', async (req, res) => {
     let { email } = req.body;
     let client = await mongodb.connect(dbURL).catch(err => { throw err; });
@@ -243,7 +246,8 @@ app.post('/forgotpassword', async (req, res) => {
             message: 'Email does not exist'
         });
     }
-})
+});
+
 app.post('/resetpassword', async (req, res) => {
     let { email, password, passwordResetToken } = req.body;
     let client = await mongodb.connect(dbURL).catch(err => { throw err });
@@ -265,6 +269,7 @@ app.post('/resetpassword', async (req, res) => {
     }
     client.close();
 });
+
 app.post("/login", async (req, res) => {
     let { email, password } = req.body;
     if (email === undefined || password === undefined) {
