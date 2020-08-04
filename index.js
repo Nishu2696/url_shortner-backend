@@ -154,6 +154,8 @@ app.get('/:urlId', function (req, res) {
 app.post('/register', async (req, res) => {
     let email = req.body.email;
     let password = req.body.password;
+    let firstName = req.body.firstName;
+    let lastName = req.body.lastName;
     if (email === undefined || password === undefined) {
         res.status(400).json({
             message: 'Fields missing'
