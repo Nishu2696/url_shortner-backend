@@ -45,6 +45,14 @@ app.listen(port, () => {
     console.log("listening in port " + port)
 });
 
+let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD
+    }
+});
+
 let mailOptions = {
     from: process.env.EMAIL,
     to: '',
@@ -169,7 +177,7 @@ app.post('/register', async (req, res) => {
             await db.collection('users').updateOne({ email }, { $set: { verificationToken: token } });
             client.close();
             mailOptions.to = email;
-            mailOptions.subject = 'CRM-Account verification '
+            mailOptions.subject = 'URL-SHORTNER-Account verification '
             mailOptions.html = `<html><body><h1>Account Verification Link</h1>
                                  <h3>Click the link below to verify the account</h3>
                                 <a href='${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}'>${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}</a><br>`;
@@ -222,7 +230,7 @@ app.post('/forgotpassword', async (req, res) => {
         await db.collection('users').updateOne({ email }, { $set: { passwordResetToken: token } });
         client.close();
         mailOptions.to = email;
-        mailOptions.subject = 'CRM-Password reset';
+        mailOptions.subject = 'URL-SHORTNER-Password reset';
         mailOptions.html = `<html><body><h1>Password reset Link</h1>
         <h3>Click the link below to reset password</h3>
        <a href='${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}'>${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}</a><br>`;
