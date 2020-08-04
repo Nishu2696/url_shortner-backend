@@ -186,7 +186,7 @@ app.post('/register', async (req, res) => {
                                 <a href='${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}'>${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}</a><br>`;
             transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
-                    console.log(error);
+                    console.log("line-189", error);
                     res.status(500).json({
                         message: "An error occured,Please try again later"
                     })
