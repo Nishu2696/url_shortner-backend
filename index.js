@@ -185,6 +185,7 @@ app.post('/register', async (req, res) => {
             let token = buf.toString('hex');
             await db.collection('users').updateOne({ email }, { $set: { verificationToken: token } });
             client.close();
+            console.log(process.env.urldev);
             mailOptions.to = email;
             mailOptions.subject = 'URL-SHORTNER-Account verification '
             mailOptions.html = `<html><body><h1>Account Verification Link</h1>
