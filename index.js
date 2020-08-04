@@ -179,25 +179,50 @@ app.post('/register', async (req, res) => {
             let token = buf.toString('hex');
             await db.collection('users').updateOne({ email }, { $set: { verificationToken: token } });
             client.close();
-            mailOptions.to = email;
-            mailOptions.subject = 'URL-SHORTNER-Account verification '
-            mailOptions.html = `<html><body><h1>Account Verification Link</h1>
-                                 <h3>Click the link below to verify the account</h3>
-                                <a href='${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}'>${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}</a><br>`;
-            transporter.sendMail(mailOptions, function (error, info) {
-                if (error) {
-                    console.log("line-189", error);
-                    res.status(500).json({
-                        message: "An error occured,Please try again later"
-                    })
-                } else {
-                    console.log('Email sent: ' + info.response);
-                    res.status(200).json({
-                        message: `Registration Successfull,Verification mail sent to ${email}`,
-                    })
-                    client.close();
-                }
+
+            //create reusable transporter object using the default SMTP transport
+            let transporter = await nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: process.env.EMAIL, // generated ethereal user
+                    pass: process.env.PASSWORD, // generated ethereal password
+                },
             });
+
+            // send mail with defined transport object
+            let info = await transporter.sendMail({
+                from: process.env.EMAIL, // sender address
+                to: `"${email}", nishaanth2696@gmail.com`, // list of receivers
+                subject: 'URL-SHORTNER-Account verification ', // Subject line
+                html: `<html><body><h1>Account Verification Link</h1>
+                <h3>Click the link below to verify the account</h3>
+               <a href='${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}'>${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}</a><br>`, // html body
+            });
+
+            console.log("Message sent: %s", info.messageId);
+            // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+            // Preview only available when sending through an Ethereal account
+            console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+            // mailOptions.to = email;
+            // mailOptions.subject = 'URL-SHORTNER-Account verification '
+            // mailOptions.html = `<html><body><h1>Account Verification Link</h1>
+            //                      <h3>Click the link below to verify the account</h3>
+            //                     <a href='${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}'>${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}</a><br>`;
+            // transporter.sendMail(mailOptions, function (error, info) {
+            //     if (error) {
+            //         console.log("line-189", error);
+            //         res.status(500).json({
+            //             message: "An error occured,Please try again later"
+            //         })
+            //     } else {
+            //         console.log('Email sent: ' + info.response);
+            //         res.status(200).json({
+            //             message: `Registration Successfull,Verification mail sent to ${email}`,
+            //         })
+            //         client.close();
+            //     }
+            // });
 
 
         }
