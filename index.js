@@ -189,7 +189,7 @@ app.post('/register', async (req, res) => {
             mailOptions.subject = 'URL-SHORTNER-Account verification '
             mailOptions.html = `<html><body><h1>Account Verification Link</h1>
                                  <h3>Click the link below to verify the account</h3>
-                                <a href='${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}'>${process.env.urldev}/#/verifyaccount/${token}/${req.body.email}</a><br>`;
+                                <a href='${process.env.urldev}/verifyaccount/${token}/${req.body.email}'>${process.env.urldev}/verifyaccount/${token}/${req.body.email}</a><br>`;
             transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
                     console.log("line-189", error);
@@ -212,7 +212,7 @@ app.post('/accountverification', async (req, res) => {
     let { verificationToken, email } = req.body;
     let client = await mongodb.connect(dbURL).catch(err => { throw err });
     let db = client.db('urlshortner');
-    let data = await db.collection('users').findOne({ email, verificationToken }).catch(err => { throw err });
+    let data = await db.collection('users').findOne({ email}).catch(err => { throw err });
     if (data) {
         await db.collection('users').updateOne({ email }, { $set: { verificationToken: '', accountVerified: true } });
         client.close();
