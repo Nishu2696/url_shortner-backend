@@ -184,8 +184,8 @@ app.post('/register', async (req, res) => {
             let buf = await require('crypto').randomBytes(32);
             let token1 = buf.toString('hex');
             console.log("token1", token1);
-            console.log("token", token);
             let token = await bcrypt.hash(token1, salt).catch((err) => { throw err; });
+            console.log("token", token);
             await db.collection('users').updateOne({ email }, { $set: { verificationToken: token } });
             client.close();
             console.log(process.env.urldev);
