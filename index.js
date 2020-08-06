@@ -182,10 +182,7 @@ app.post('/register', async (req, res) => {
             let accountVerified = false;
             await db.collection('users').insertOne({ email, firstName, lastName, password, accountVerified }).catch(err => { throw err; });
             let buf = await require('crypto').randomBytes(32);
-            let token1 = buf.toString('hex');
-            console.log("token1", token1);
-            let token = await bcrypt.hash(token1, salt).catch((err) => { throw err; });
-            console.log("token", token);
+            let token = buf.toString('hex');
             await db.collection('users').updateOne({ email }, { $set: { verificationToken: token } });
             client.close();
             console.log(process.env.urldev);
