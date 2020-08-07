@@ -149,7 +149,7 @@ app.get('/:urlId', function (req, res) {
         UrlModel.updateOne({ shortUrl: req.params.urlId }, { $inc: { clickCount: 1 } }, function (err, updatedData) {
             if (err) throw err;
             console.log(updatedData);
-            res.send(updatedData);
+            res.redirect(updatedData.longUrl);
         })
 
 
