@@ -156,7 +156,7 @@ app.get('/:urlId', function (req, res) {
                 shortUrl: data.longUrl,
                 clickCount: updatedData.clickCount
             }
-            res.send(urlvalue);
+            res.redirect(urlvalue["shortUrl"]);
         })
 
 
